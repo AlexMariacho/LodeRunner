@@ -9,6 +9,9 @@ namespace Loderunner.BotSystems.PathFinding
 {
     public class PathMap
     {
+        public Dictionary<string, PathNode> PointToNode => _pointToNode;
+        public List<PathNode> Gold => _gold;
+        
         private GameBoard _board;
         private BoardPoint _root;
         private int _deepFind;
@@ -16,8 +19,11 @@ namespace Loderunner.BotSystems.PathFinding
         private int _posX;
         private int _posY;
         
-        private Dictionary<string, PathNode> PointToNode = new Dictionary<string, PathNode>();
-        
+        private Dictionary<string, PathNode> _pointToNode = new Dictionary<string, PathNode>();
+        private List<PathNode> _gold = new List<PathNode>();
+
+
+
         public PathMap(int deepFind = 5)
         {
             _deepFind = deepFind;
@@ -31,19 +37,32 @@ namespace Loderunner.BotSystems.PathFinding
         
         public PathGraph GenerateMap()
         {
-            PointToNode.Clear();
+            _pointToNode.Clear();
+            _gold.Clear();
             
             MarkerTheBoard();
             FindLinks();
             
             var graph = new PathGraph();
-            foreach (var node in PointToNode.Values)
+            foreach (var node in _pointToNode.Values)
             {
                 graph.Nodes.Add(node);
             }
+
+            var test =_board.GetMyPosition();
             return graph;
         }
-        
+
+        public PathNode GetNode(int x, int y)
+        {
+            if (PointToNode.ContainsKey(BoardPointStringPosition.Get(x, y)))
+            {
+                return PointToNode[BoardPointStringPosition.Get(x, y)];
+            }
+
+            return null;
+        }
+
         private void MarkerTheBoard()
         {
             for (int i = -_deepFind; i < _deepFind; i++)
@@ -59,8 +78,10 @@ namespace Loderunner.BotSystems.PathFinding
                     var node = new PathNode();
                     node.SetCost(CalculateCost(_posX,_posY));
                     node.SetScore(CalculateScore(_posX, _posY));
+                    node.SetName($"{_posX}:{_posY}");
                     
-                    PointToNode.Add(UniqueID.Get(_posX, _posY), node);
+                    _pointToNode.Add(BoardPointStringPosition.Get(_posX, _posY), node);
+                    TryAddGoldToList(ref node, _posX, _posY);
                 }
             }
         }
@@ -107,8 +128,20 @@ namespace Loderunner.BotSystems.PathFinding
             }
         }
 
+        private void TryAddGoldToList(ref PathNode node, int x, int y)
+        {
+            if (_board.HasGoldAt(x, y))
+            {
+                if (!_gold.Contains(node))
+                {
+                    _gold.Add(node);
+                }
+            }
+        }
+        
         private void FindLinks()
         {
+            var test = _board.GetMyPosition();
             for (int i = -_deepFind; i < _deepFind; i++)
             {
                 for (int j = -_deepFind; j < _deepFind; j++)
@@ -118,7 +151,8 @@ namespace Loderunner.BotSystems.PathFinding
                     
                     if (_board.IsOutOfBoard(_posX, _posY))
                         continue;
-    
+
+
                     FindLinkOnTypedElement(_posX, _posY);
                 }
             }
@@ -128,47 +162,34 @@ namespace Loderunner.BotSystems.PathFinding
         {
             var element = _board.GetAt(x, y);
             PathNode node;
-            if (PointToNode.ContainsKey(UniqueID.Get(x, y)))
+            if (_pointToNode.ContainsKey(BoardPointStringPosition.Get(x, y)))
             {
-                node = PointToNode[UniqueID.Get(x, y)];
+                node = _pointToNode[BoardPointStringPosition.Get(x, y)];
             }
             else
             {
                 return;
             }
 
-            if (_board.HasPipeAt(x, y))
-            {
-                FindNeighborsPipe(ref node, x, y);
-            }
-
-            if (_board.HasLadderAt(x, y))
-            {
-                FindNeighborsLadder(ref node, x, y);
-            }
-
-            if (_board.HasEnemyAt(x, y))
-            {
-                FindNeighborsNone(ref node, x, y);
-                return;
-            }
-
-            if (_board.HasShadowAt(x, y))
-            {
-                FindNeighborsNone(ref node, x, y);
-                return;
-            }
-
-            if (_board.HasOtherHeroAt(x, y))
-            {
-                FindNeighborsNone(ref node, x, y);
-                return;
-            }
-
             if (_board.HasElementAt(x, y, BoardElement.Brick))
             {
                 FindNeighborsBrick(ref node, x, y);
+                return;
             }
+            
+            if (_board.HasLadderAt(x, y))
+            {
+                FindNeighborsLadder(ref node, x, y);
+                return;
+            }
+
+            if (_board.HasPipeAt(x, y))
+            {
+                FindNeighborsPipe(ref node, x, y);
+                return;
+            }
+            
+            FindNeighborsNone(ref node, x, y);
         }
         
         private void FindNeighborsBrick(ref PathNode node, int x, int y)
@@ -204,29 +225,33 @@ namespace Loderunner.BotSystems.PathFinding
         {
             if (!_board.HasWallAt(x, y))
             {
-                var hash = UniqueID.Get(x, y);
-                if (PointToNode.ContainsKey(hash))
+                var hash = BoardPointStringPosition.Get(x, y);
+                if (_pointToNode.ContainsKey(hash))
                 {
-                    node.Link(PointToNode[hash], direction);
+                    node.Link(_pointToNode[hash], direction);
                 }
             }
         }
 
         private void LinkNodeDiagonalDirectionWall(ref PathNode node, int x, int y, PathNode.DirectionNode direction)
         {
-            var element = _board.GetAt(x, y);
-            switch (element)
+            if (!_board.IsOutOfBoard(x, y))
             {
-                case BoardElement.Brick:
-                    var hash = UniqueID.Get(x, y);
-                    if (PointToNode.ContainsKey(hash))
-                    {
-                        node.Link(PointToNode[hash], direction);
-                    }
-                    break;
-                default:
-                    return;
+                var element = _board.GetAt(x, y);
+                switch (element)
+                {
+                    case BoardElement.Brick:
+                        var hash = BoardPointStringPosition.Get(x, y);
+                        if (_pointToNode.ContainsKey(hash))
+                        {
+                            node.Link(_pointToNode[hash], direction);
+                        }
+                        break;
+                    default:
+                        return;
+                }
             }
+            
         }
 
     }

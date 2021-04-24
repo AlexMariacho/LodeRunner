@@ -22,7 +22,10 @@
 using System;
 using System.Diagnostics;
 using Loderunner.Api;
+using Loderunner.BotSystems.Core;
 using Loderunner.BotSystems.PathFinding;
+using Loderunner.BotSystems.Utilities;
+using Loderunner.Config;
 
 namespace Loderunner
 {
@@ -31,15 +34,16 @@ namespace Loderunner
     /// </summary>
     internal class MyLoderunnerBot : LoderunnerBase
     {
-        //Settings
-        private int _deepFindPath = 4;
-        
         private PathMap _pathMap;
+        private PathFind _pathFind;
+        private TargetSearcher _targetSearcher;
         
         public MyLoderunnerBot(string serverUrl)
             : base(serverUrl)
         {
-            _pathMap  = new PathMap(_deepFindPath);
+            _pathMap  = new PathMap(BotConfiguration.DeepPathFind);
+            _pathFind = new PathFind(_pathMap, BotConfiguration.MaxLenghtPath);
+            _targetSearcher = new TargetSearcher(_pathFind, _pathMap);
         }
 
         /// <summary>
@@ -47,9 +51,8 @@ namespace Loderunner
         /// </summary>
         protected override string DoMove(GameBoard gameBoard)
         {
-            //Just print current state (gameBoard) to console
             Console.Clear();
-            gameBoard.PrintBoard();
+            //gameBoard.PrintBoard();
 
             return LoderunnerActionToString(CalculateAction(gameBoard));
         }
@@ -66,7 +69,18 @@ namespace Loderunner
             //Основные методы
             _pathMap.Initialization(gameBoard, gameBoard.GetMyPosition());
             _pathMap.GenerateMap();
-            LoderunnerAction action = LoderunnerAction.GoRight;
+            
+            _pathFind.Initialization(gameBoard);
+            _targetSearcher.Initialization(gameBoard);
+            LoderunnerAction action;
+            if (_pathMap.Gold.Count > 0)
+            {
+                action = _targetSearcher.GetBestPathAction();
+            }
+            else
+            {
+                action = LoderunnerAction.DoNothing;
+            }
 
             //Замеряем время выполнения
             stopwatch.Stop();

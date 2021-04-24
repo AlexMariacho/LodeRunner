@@ -49,7 +49,16 @@ namespace Loderunner.BotSystems.PathFinding
         /// Список всех соседей
         /// </summary>
         public List<PathNode> Neighbors => _neighbors;
+
+        /// <summary>
+        /// Ссылка на граф, с которого был сделан переход
+        /// </summary>
+        public PathNode Source => _source;
         
+        /// <summary>
+        /// Имя вершины графа
+        /// </summary>
+        public string Name => _name;
         
         private int _score;
         private int _cost;
@@ -59,7 +68,10 @@ namespace Loderunner.BotSystems.PathFinding
         private PathNode _left;
         private PathNode _diagonalLeft;
         private PathNode _diagonalRight;
-        
+
+        private PathNode _source;
+        private string _name;
+
         private List<PathNode> _neighbors = new List<PathNode>();
         
         public enum DirectionNode
@@ -111,6 +123,24 @@ namespace Loderunner.BotSystems.PathFinding
         public void SetScore(int score)
         {
             _score = score;
+        }
+
+        /// <summary>
+        /// Установить источник перехода в данный граф
+        /// </summary>
+        /// <param name="node">Граф источник</param>
+        public void SetSource(PathNode node)
+        {
+            _source = node;
+        }
+
+        /// <summary>
+        /// Установить имя вершины графа
+        /// </summary>
+        /// <param name="name">Имя графа</param>
+        public void SetName(string name)
+        {
+            _name = name;
         }
 
         /// <summary>

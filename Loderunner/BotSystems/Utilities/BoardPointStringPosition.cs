@@ -2,7 +2,7 @@
 
 namespace Loderunner.BotSystems.Utilities
 {
-    public static class UniqueID
+    public static class BoardPointStringPosition
     {
         public static string Get(int x, int y)
         {
