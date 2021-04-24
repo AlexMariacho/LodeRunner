@@ -20,7 +20,9 @@
  * #L%
  */
 using System;
+using System.Diagnostics;
 using Loderunner.Api;
+using Loderunner.BotSystems.PathFinding;
 
 namespace Loderunner
 {
@@ -29,9 +31,15 @@ namespace Loderunner
     /// </summary>
     internal class MyLoderunnerBot : LoderunnerBase
     {
+        //Settings
+        private int _deepFindPath = 4;
+        
+        private PathMap _pathMap;
+        
         public MyLoderunnerBot(string serverUrl)
             : base(serverUrl)
         {
+            _pathMap  = new PathMap(_deepFindPath);
         }
 
         /// <summary>
@@ -43,15 +51,30 @@ namespace Loderunner
             Console.Clear();
             gameBoard.PrintBoard();
 
-
-            //TODO: Implement your logic here
-            Random random = new Random(Environment.TickCount);
-            LoderunnerAction action = (LoderunnerAction)random.Next(3);
-
-
-            Console.WriteLine(action.ToString());
-            return LoderunnerActionToString(action);
+            return LoderunnerActionToString(CalculateAction(gameBoard));
         }
+
+        /// <summary>
+        /// Метод расчета следующего хода
+        /// </summary>
+        private LoderunnerAction CalculateAction(GameBoard gameBoard)
+        {
+            //Проверка времени выполнения
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            
+            //Основные методы
+            _pathMap.Initialization(gameBoard, gameBoard.GetMyPosition());
+            _pathMap.GenerateMap();
+            LoderunnerAction action = LoderunnerAction.GoRight;
+
+            //Замеряем время выполнения
+            stopwatch.Stop();
+            Console.WriteLine($"Затрачено времени: {stopwatch.ElapsedMilliseconds}");
+            Console.WriteLine(action.ToString());
+            return action;
+        }
+
 
         /// <summary>
         /// Starts loderunner's client shutdown.
