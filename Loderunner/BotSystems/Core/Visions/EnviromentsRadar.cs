@@ -45,6 +45,8 @@ namespace Loderunner.BotSystems.Core
         }
 
 
+        #region Expiriments block
+
         private BoardPoint _finalPos;
         private bool _isSetDestination = false;
         private Stack<LoderunnerAction> _pathToDestination = new Stack<LoderunnerAction>();
@@ -63,6 +65,10 @@ namespace Loderunner.BotSystems.Core
                 _pathToDestination = GraphToAction.ParseToStack(path);
             }
         }
+        
+
+        #endregion
+        
         
         public LoderunnerAction NextAction()
         {
