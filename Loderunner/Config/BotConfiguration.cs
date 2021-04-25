@@ -8,7 +8,7 @@ namespace Loderunner.Config
         /// На сколько клеток в каждую сторону
         /// строить карту (относительно игрока)
         /// </summary>
-        public static int DeepPathFind = 8;
+        public static int DeepPathFind = 10;
 
         /// <summary>
         /// Дистанция поиска объектов

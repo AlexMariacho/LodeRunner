@@ -77,6 +77,7 @@ namespace Loderunner.BotSystems.Core
             if (index == -1)
             {
                 _wayToNearGold.Clear();
+                return;
             }
             var graph = GoldPath[_pathMap.Gold[index]];
             _wayToNearGold = GraphToAction.ParseToQueue(graph);

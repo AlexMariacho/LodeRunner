@@ -37,22 +37,13 @@ namespace Loderunner
     internal class MyLoderunnerBot : LoderunnerBase
     {
         private GameLoop _gameLoop;
-        private PathMap _pathMap;
-        private PathFind _pathFind;
-        private GoldFounder _goldFounder;
-        private EnviromentsRadar _enviromentsRadar;
-        private QueueBotActions _botActions;
+        private BotBrain _botBrain;
         
         public MyLoderunnerBot(string serverUrl)
             : base(serverUrl)
         {
             _gameLoop = new GameLoop();
-
-            _pathMap  = new PathMap(_gameLoop, BotConfiguration.DeepPathFind);
-            _pathFind = new PathFind(_gameLoop, _pathMap, BotConfiguration.MaxLenghtPath);
-            _goldFounder = new GoldFounder(_gameLoop, _pathFind, _pathMap);
-            _enviromentsRadar = new EnviromentsRadar(_gameLoop, _pathFind, BotConfiguration.DistanceEnviroments);
-            _botActions = new QueueBotActions();
+            _botBrain = new BotBrain(_gameLoop);
         }
 
         /// <summary>
@@ -71,30 +62,13 @@ namespace Loderunner
             Console.Clear();
             _gameLoop.InvokeTick(gameBoard);
             
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
+            // var stopwatch = new Stopwatch();
+            // stopwatch.Start();
+            //
+            // stopwatch.Stop();
+            // Console.WriteLine($"Затрачено времени: {stopwatch.ElapsedMilliseconds}");
             
-            
-            
-            #region ПОРЯДОК ВЫПОЛНЕНИЯ
-            
-
-            
-
-            
-            
-            
-            
-            
-            #endregion
-
-            
-            
-            //Замеряем время выполнения
-            stopwatch.Stop();
-            Console.WriteLine($"Затрачено времени: {stopwatch.ElapsedMilliseconds}");
-            LoderunnerAction action = _botActions.Next();
+            LoderunnerAction action =  _botBrain.NextAction();
             Console.WriteLine(action.ToString());
             return action;
         }

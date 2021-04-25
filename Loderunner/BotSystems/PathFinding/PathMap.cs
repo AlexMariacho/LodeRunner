@@ -212,8 +212,15 @@ namespace Loderunner.BotSystems.PathFinding
             {
                 LinkNodeDirectionNotWall(ref node, x-1, y, PathNode.DirectionNode.Left);
                 LinkNodeDirectionNotWall(ref node, x+1, y, PathNode.DirectionNode.Right);
-                LinkNodeDiagonalDirectionWall(ref node, x-1, y+1, PathNode.DirectionNode.DiagonalLeft);
-                LinkNodeDiagonalDirectionWall(ref node, x+1, y+1, PathNode.DirectionNode.DiagonalRight);
+
+                if (!_board.HasNotWalkableAt(x - 1, y))
+                {
+                    LinkNodeDiagonalDirectionWall(ref node, x-1, y+1, PathNode.DirectionNode.DiagonalLeft);
+                }
+                if (!_board.HasNotWalkableAt(x + 1, y))
+                {
+                    LinkNodeDiagonalDirectionWall(ref node, x+1, y+1, PathNode.DirectionNode.DiagonalRight);
+                }
             }
             
             LinkNodeDirectionNotWall(ref node, x, y+1, PathNode.DirectionNode.Down);
