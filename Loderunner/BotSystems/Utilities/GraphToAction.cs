@@ -47,12 +47,12 @@ namespace Loderunner.BotSystems.Utilities
                         case PathNode.DirectionNode.DiagonalLeft:
                             result.Enqueue(LoderunnerAction.DrillLeft);
                             result.Enqueue(LoderunnerAction.GoLeft);
-                            result.Enqueue(LoderunnerAction.GoDown);
+                            result.Enqueue(LoderunnerAction.DoNothing);
                             break;
                         case PathNode.DirectionNode.DiagonalRight:
                             result.Enqueue(LoderunnerAction.DrillRight);
                             result.Enqueue(LoderunnerAction.GoRight);
-                            result.Enqueue(LoderunnerAction.GoDown);
+                            result.Enqueue(LoderunnerAction.DoNothing);
                             break;
                         case PathNode.DirectionNode.None:
                             break;
@@ -105,14 +105,14 @@ namespace Loderunner.BotSystems.Utilities
                             result.Push(LoderunnerAction.GoRight);
                             break;
                         case PathNode.DirectionNode.DiagonalLeft:
-                            result.Push(LoderunnerAction.DrillLeft);
+                            result.Push(LoderunnerAction.DoNothing);
                             result.Push(LoderunnerAction.GoLeft);
-                            result.Push(LoderunnerAction.GoDown);
+                            result.Push(LoderunnerAction.DrillLeft);
                             break;
                         case PathNode.DirectionNode.DiagonalRight:
-                            result.Push(LoderunnerAction.DrillRight);
+                            result.Push(LoderunnerAction.DoNothing);
                             result.Push(LoderunnerAction.GoRight);
-                            result.Push(LoderunnerAction.GoDown);
+                            result.Push(LoderunnerAction.DrillRight);
                             break;
                         case PathNode.DirectionNode.None:
                             break;

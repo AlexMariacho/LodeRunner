@@ -54,8 +54,8 @@ namespace Loderunner.BotSystems.Core
         private void TestDistanation()
         {
             var point = _board.GetMyPosition();
-            int offsetX = 2;
-            int offsetY = 0;
+            int offsetX = 0;
+            int offsetY = 2;
             
             _finalPos = new BoardPoint(point.X + offsetX, point.Y + offsetY);
             

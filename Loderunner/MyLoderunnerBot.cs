@@ -68,7 +68,7 @@ namespace Loderunner
             // stopwatch.Stop();
             // Console.WriteLine($"Затрачено времени: {stopwatch.ElapsedMilliseconds}");
             
-            LoderunnerAction action =  _botBrain.NextAction();
+            LoderunnerAction action = _botBrain.NextAction();
             Console.WriteLine(action.ToString());
             return action;
         }
