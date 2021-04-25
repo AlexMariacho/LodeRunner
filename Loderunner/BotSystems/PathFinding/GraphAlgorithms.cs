@@ -28,7 +28,7 @@ namespace Loderunner.BotSystems.PathFinding
         {
             _checkedNodes.Clear();
             _queue.Clear();
-            var pathLenght = 0;
+            //var pathLenght = 0;
             
             _checkedNodes.Add(root);
             _queue.Enqueue(root);
@@ -45,7 +45,8 @@ namespace Loderunner.BotSystems.PathFinding
                         _queue.Enqueue(neighbor);
                     }
                 }
-                pathLenght++;
+                if (target.Source != null)
+                    break;
             }
 
             if (target.Source != null)
@@ -54,7 +55,57 @@ namespace Loderunner.BotSystems.PathFinding
             }
             return null;
         }
-        
+
+        public PathGraph GetPathWithCost(ref PathNode root, ref PathNode target)
+        {
+            _checkedNodes.Clear();
+            _queue.Clear();
+            
+            
+
+
+            return null;
+        }
+
+        private PathGraph GetAllGraph(ref PathNode root)
+        {
+            _checkedNodes.Clear();
+            _queue.Clear();
+            var result = new PathGraph();
+            
+            _checkedNodes.Add(root);
+            _queue.Enqueue(root);
+            while (_queue.Count != 0)
+            {
+                var node = _queue.Dequeue();
+                
+                foreach (var neighbor in node.Neighbors)
+                {
+                    if (!_checkedNodes.Contains(neighbor))
+                    {
+                        _checkedNodes.Add(neighbor);
+                        neighbor.SetSource(node);
+                        _queue.Enqueue(neighbor);
+                    }
+                }
+            }
+
+            foreach (var node in _checkedNodes)
+            {
+                if (!result.Nodes.Contains(node))
+                {
+                    result.Nodes.Add(node);
+                }
+            }
+            return result;
+        }
+
+        // private PathGraph TransformToWeightedGraph(ref PathGraph graph)
+        // {
+        //     
+        // }
+
+
         private PathGraph GetPathFromTarget(ref PathNode target)
         {
             if (target.Source == null)
@@ -70,7 +121,7 @@ namespace Loderunner.BotSystems.PathFinding
             {
                 graph.Nodes.Add(node);
                 node = node.Source;
-            } while (node.Source != null);
+            } while (node != null);
             
             return graph;
         }

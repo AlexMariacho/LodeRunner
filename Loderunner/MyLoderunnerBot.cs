@@ -81,6 +81,11 @@ namespace Loderunner
             {
                 action = LoderunnerAction.DoNothing;
             }
+            
+            // var point = gameBoard.GetMyPosition();
+            // var path = _pathFind.GetGraphToPoint(point.X+1, point.Y+2);
+            // action = _pathFind.ParseGraphToAction(path);
+            
 
             //Замеряем время выполнения
             stopwatch.Stop();

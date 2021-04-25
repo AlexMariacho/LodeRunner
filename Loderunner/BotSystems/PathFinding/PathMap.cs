@@ -7,6 +7,11 @@ using Loderunner.Extensions;
 
 namespace Loderunner.BotSystems.PathFinding
 {
+    /// <summary>
+    /// Игровая карта заданнаго расстояния от бота
+    /// расчитанная на гарфах. (варианты переходов из
+    /// клетки, веса)
+    /// </summary>
     public class PathMap
     {
         public Dictionary<string, PathNode> PointToNode => _pointToNode;
@@ -22,8 +27,7 @@ namespace Loderunner.BotSystems.PathFinding
         private Dictionary<string, PathNode> _pointToNode = new Dictionary<string, PathNode>();
         private List<PathNode> _gold = new List<PathNode>();
 
-
-
+        
         public PathMap(int deepFind = 5)
         {
             _deepFind = deepFind;
@@ -151,8 +155,7 @@ namespace Loderunner.BotSystems.PathFinding
                     
                     if (_board.IsOutOfBoard(_posX, _posY))
                         continue;
-
-
+                    
                     FindLinkOnTypedElement(_posX, _posY);
                 }
             }
@@ -199,11 +202,15 @@ namespace Loderunner.BotSystems.PathFinding
 
         private void FindNeighborsNone(ref PathNode node, int x, int y)
         {
-            LinkNodeDirectionNotWall(ref node, x-1, y, PathNode.DirectionNode.Left);
-            LinkNodeDirectionNotWall(ref node, x+1, y, PathNode.DirectionNode.Right);
+            if (!_board.HasElementAt(x, y + 1, BoardElement.None))
+            {
+                LinkNodeDirectionNotWall(ref node, x-1, y, PathNode.DirectionNode.Left);
+                LinkNodeDirectionNotWall(ref node, x+1, y, PathNode.DirectionNode.Right);
+                LinkNodeDiagonalDirectionWall(ref node, x-1, y+1, PathNode.DirectionNode.DiagonalLeft);
+                LinkNodeDiagonalDirectionWall(ref node, x+1, y+1, PathNode.DirectionNode.DiagonalRight);
+            }
+            
             LinkNodeDirectionNotWall(ref node, x, y+1, PathNode.DirectionNode.Down);
-            LinkNodeDiagonalDirectionWall(ref node, x-1, y+1, PathNode.DirectionNode.DiagonalLeft);
-            LinkNodeDiagonalDirectionWall(ref node, x+1, y+1, PathNode.DirectionNode.DiagonalRight);
         }
 
         private void FindNeighborsPipe(ref PathNode node, int x, int y)

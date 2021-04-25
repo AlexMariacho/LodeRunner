@@ -33,7 +33,11 @@ namespace Loderunner.BotSystems.Core
                 if (!GoldPath.ContainsKey(nodeGold))
                 {
                     var node = nodeGold;
-                    GoldPath.Add(nodeGold, _pathFind.GetGraphToPoint(ref node));
+                    var path = _pathFind.GetGraphToPoint(ref node);
+                    if (path != null)
+                    {
+                        GoldPath.Add(nodeGold, path);
+                    }
                 }
             }
 
@@ -41,10 +45,11 @@ namespace Loderunner.BotSystems.Core
             var index = -1;
             for (int i = 0; i < GoldPath.Count; i++)
             {
-                if (GoldPath.ContainsKey(_pathMap.Gold[i]) != null)
+                if (GoldPath.ContainsKey(_pathMap.Gold[i]))
                 {
                     if (GoldPath[_pathMap.Gold[i]].Nodes.Count < minCost)
                     {
+                        minCost = GoldPath[_pathMap.Gold[i]].Nodes.Count;
                         index = i;
                     }
                 }

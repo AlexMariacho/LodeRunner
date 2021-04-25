@@ -4,6 +4,10 @@ using Loderunner.Api;
 
 namespace Loderunner.BotSystems.PathFinding
 {
+    /// <summary>
+    /// Поиск пути из одной точки в другую на
+    /// графах.
+    /// </summary>
     public class PathFind
     {
         private GameBoard _board;

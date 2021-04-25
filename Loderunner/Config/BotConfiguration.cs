@@ -6,7 +6,7 @@
         /// На сколько клеток в каждую сторону
         /// строить карту (относительно игрока)
         /// </summary>
-        public static int DeepPathFind = 6;
+        public static int DeepPathFind = 10;
         
         /// <summary>
         /// Максимальная длина пути до цели
