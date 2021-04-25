@@ -20,13 +20,13 @@
  * #L%
  */
 using System;
+using Loderunner.BotSystems.Base;
 
 namespace Loderunner
 {
     class Program
     {
         const string ServerAddress = "https://dojorena.io/codenjoy-contest/board/player/dojorena475?code=2564953191887534516";
-
         static void Main(string[] args)
         {
             // creating and starting a bot instance

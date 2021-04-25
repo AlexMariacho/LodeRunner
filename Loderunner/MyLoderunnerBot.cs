@@ -21,6 +21,7 @@
  */
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core;
@@ -39,14 +40,18 @@ namespace Loderunner
         private PathMap _pathMap;
         private PathFind _pathFind;
         private GoldFounder _goldFounder;
+        private EnviromentsRadar _enviromentsRadar;
         private QueueBotActions _botActions;
         
         public MyLoderunnerBot(string serverUrl)
             : base(serverUrl)
         {
+            _gameLoop = new GameLoop();
+
             _pathMap  = new PathMap(_gameLoop, BotConfiguration.DeepPathFind);
             _pathFind = new PathFind(_gameLoop, _pathMap, BotConfiguration.MaxLenghtPath);
             _goldFounder = new GoldFounder(_gameLoop, _pathFind, _pathMap);
+            _enviromentsRadar = new EnviromentsRadar(_gameLoop, _pathFind, BotConfiguration.DistanceEnviroments);
             _botActions = new QueueBotActions();
         }
 
@@ -63,17 +68,23 @@ namespace Loderunner
         /// </summary>
         private LoderunnerAction CalculateAction(GameBoard gameBoard)
         {
+            Console.Clear();
             _gameLoop.InvokeTick(gameBoard);
             
-            //Проверка времени выполнения
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            
+            
+            
             #region ПОРЯДОК ВЫПОЛНЕНИЯ
             
-            _pathMap.GenerateMap();
+
             
 
+            
+            
+            
             
             
             #endregion

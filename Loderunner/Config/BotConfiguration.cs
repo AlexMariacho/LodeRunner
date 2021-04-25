@@ -9,6 +9,16 @@ namespace Loderunner.Config
         /// строить карту (относительно игрока)
         /// </summary>
         public static int DeepPathFind = 8;
+
+        /// <summary>
+        /// Дистанция поиска объектов
+        /// </summary>
+        public static int DistanceEnviroments = 5;
+
+        /// <summary>
+        /// Дистанция поиска опасностей
+        /// </summary>
+        public static int DistanceDangerous = 5;
         
         /// <summary>
         /// Максимальная длина пути до цели

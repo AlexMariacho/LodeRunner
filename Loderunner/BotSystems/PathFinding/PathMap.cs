@@ -270,6 +270,8 @@ namespace Loderunner.BotSystems.PathFinding
         {
             _board = board;
             _root = board.GetMyPosition();
+
+            GenerateMap();
         }
     }
 }

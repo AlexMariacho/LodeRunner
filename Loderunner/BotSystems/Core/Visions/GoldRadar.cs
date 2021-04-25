@@ -12,6 +12,8 @@ namespace Loderunner.BotSystems.Core
     /// </summary>
     public class GoldFounder : ITick, IActionProvider
     {
+        public int Priority { get => 1; }
+        
         private GameBoard _board;
         
         private PathFind _pathFind;
@@ -19,10 +21,12 @@ namespace Loderunner.BotSystems.Core
         
         private Dictionary<PathNode, PathGraph> GoldPath = new Dictionary<PathNode, PathGraph>();
         private GameLoop _gameLoop;
+        
+        private Queue<LoderunnerAction> _wayToNearGold = new Queue<LoderunnerAction>();
 
         public GoldFounder(GameLoop gameLoop, PathFind pathFind, PathMap pathMap)
         {
-            _gameLoop = _gameLoop;
+            _gameLoop = gameLoop;
             _pathFind = pathFind;
             _pathMap = pathMap;
 
@@ -34,11 +38,12 @@ namespace Loderunner.BotSystems.Core
             _gameLoop.OnTick -= Tick;
         }
 
+        //todo: оптимизировать до одного действия
         /// <summary>
         /// Получить список действий до ближайшего золота
         /// </summary>
         /// <returns></returns>
-        public Queue<LoderunnerAction> GetBestPathActions()
+        private void FindNearGold()
         {
             GoldPath.Clear();
             
@@ -71,20 +76,26 @@ namespace Loderunner.BotSystems.Core
             
             if (index == -1)
             {
-                return null;
+                _wayToNearGold.Clear();
             }
             var graph = GoldPath[_pathMap.Gold[index]];
-            return GraphToAction.ParseToQueue(graph);
+            _wayToNearGold = GraphToAction.ParseToQueue(graph);
         }
         
         public LoderunnerAction NextAction()
         {
-            return LoderunnerAction.Suicide;
-        }
+            if (_wayToNearGold.Count > 0)
+            {
+                return _wayToNearGold.Dequeue();
+            }
 
+            return LoderunnerAction.DoNothing;
+        }
+        
         public void Tick(GameBoard board)
         {
             _board = board;
+            FindNearGold();
         }
     }
 }
