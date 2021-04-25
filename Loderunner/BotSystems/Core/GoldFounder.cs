@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
 using Loderunner.Api;
+using Loderunner.BotSystems.Base;
+using Loderunner.BotSystems.Core.Interfaces;
 using Loderunner.BotSystems.PathFinding;
+using Loderunner.BotSystems.Utilities;
 
 namespace Loderunner.BotSystems.Core
 {
-    public class TargetSearcher
+    /// <summary>
+    /// Класс отвечает за поиск золота
+    /// </summary>
+    public class GoldFounder : ITick, IActionProvider
     {
         private GameBoard _board;
         
@@ -12,22 +18,30 @@ namespace Loderunner.BotSystems.Core
         private PathMap _pathMap;
         
         private Dictionary<PathNode, PathGraph> GoldPath = new Dictionary<PathNode, PathGraph>();
+        private GameLoop _gameLoop;
 
-        public TargetSearcher(PathFind pathFind, PathMap pathMap)
+        public GoldFounder(GameLoop gameLoop, PathFind pathFind, PathMap pathMap)
         {
+            _gameLoop = _gameLoop;
             _pathFind = pathFind;
             _pathMap = pathMap;
+
+            _gameLoop.OnTick += Tick;
         }
 
-        public void Initialization(GameBoard board)
+        ~GoldFounder()
         {
-            _board = board;
+            _gameLoop.OnTick -= Tick;
         }
 
-        public LoderunnerAction GetBestPathAction()
+        /// <summary>
+        /// Получить список действий до ближайшего золота
+        /// </summary>
+        /// <returns></returns>
+        public Queue<LoderunnerAction> GetBestPathActions()
         {
             GoldPath.Clear();
-
+            
             foreach (var nodeGold in _pathMap.Gold)
             {
                 if (!GoldPath.ContainsKey(nodeGold))
@@ -40,7 +54,7 @@ namespace Loderunner.BotSystems.Core
                     }
                 }
             }
-
+            
             var minCost = 99;
             var index = -1;
             for (int i = 0; i < GoldPath.Count; i++)
@@ -54,16 +68,23 @@ namespace Loderunner.BotSystems.Core
                     }
                 }
             }
-
+            
             if (index == -1)
             {
-                return LoderunnerAction.DoNothing;
+                return null;
             }
             var graph = GoldPath[_pathMap.Gold[index]];
-            return _pathFind.ParseGraphToAction(graph);
+            return GraphToAction.ParseToQueue(graph);
         }
         
-        
-        
+        public LoderunnerAction NextAction()
+        {
+            return LoderunnerAction.Suicide;
+        }
+
+        public void Tick(GameBoard board)
+        {
+            _board = board;
+        }
     }
 }

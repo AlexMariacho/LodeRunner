@@ -1,4 +1,6 @@
-﻿namespace Loderunner.Config
+﻿using System;
+
+namespace Loderunner.Config
 {
     public static class BotConfiguration
     {
@@ -6,11 +8,12 @@
         /// На сколько клеток в каждую сторону
         /// строить карту (относительно игрока)
         /// </summary>
-        public static int DeepPathFind = 10;
+        public static int DeepPathFind = 8;
         
         /// <summary>
         /// Максимальная длина пути до цели
         /// </summary>
+        [Obsolete("Пока не используется")]
         public static int MaxLenghtPath = 10;
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Loderunner.Api;
+using Loderunner.BotSystems.Base;
+using Loderunner.BotSystems.Core.Interfaces;
 using Loderunner.BotSystems.Utilities;
 using Loderunner.Extensions;
 
@@ -12,7 +14,7 @@ namespace Loderunner.BotSystems.PathFinding
     /// расчитанная на гарфах. (варианты переходов из
     /// клетки, веса)
     /// </summary>
-    public class PathMap
+    public class PathMap : ITick
     {
         public Dictionary<string, PathNode> PointToNode => _pointToNode;
         public List<PathNode> Gold => _gold;
@@ -27,18 +29,22 @@ namespace Loderunner.BotSystems.PathFinding
         private Dictionary<string, PathNode> _pointToNode = new Dictionary<string, PathNode>();
         private List<PathNode> _gold = new List<PathNode>();
 
+        private GameLoop _gameLoop;
+
         
-        public PathMap(int deepFind = 5)
+        public PathMap(GameLoop gameLoop, int deepFind = 5)
         {
             _deepFind = deepFind;
+            _gameLoop = gameLoop;
+
+            _gameLoop.OnTick += Tick;
         }
 
-        public void Initialization(GameBoard board, BoardPoint root)
+        ~PathMap()
         {
-            _board = board;
-            _root = root;
+            _gameLoop.OnTick -= Tick;
         }
-        
+
         public PathGraph GenerateMap()
         {
             _pointToNode.Clear();
@@ -258,8 +264,12 @@ namespace Loderunner.BotSystems.PathFinding
                         return;
                 }
             }
-            
         }
 
+        public void Tick(GameBoard board)
+        {
+            _board = board;
+            _root = board.GetMyPosition();
+        }
     }
 }

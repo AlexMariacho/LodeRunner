@@ -22,6 +22,7 @@
 using System;
 using System.Diagnostics;
 using Loderunner.Api;
+using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core;
 using Loderunner.BotSystems.PathFinding;
 using Loderunner.BotSystems.Utilities;
@@ -34,16 +35,19 @@ namespace Loderunner
     /// </summary>
     internal class MyLoderunnerBot : LoderunnerBase
     {
+        private GameLoop _gameLoop;
         private PathMap _pathMap;
         private PathFind _pathFind;
-        private TargetSearcher _targetSearcher;
+        private GoldFounder _goldFounder;
+        private QueueBotActions _botActions;
         
         public MyLoderunnerBot(string serverUrl)
             : base(serverUrl)
         {
-            _pathMap  = new PathMap(BotConfiguration.DeepPathFind);
-            _pathFind = new PathFind(_pathMap, BotConfiguration.MaxLenghtPath);
-            _targetSearcher = new TargetSearcher(_pathFind, _pathMap);
+            _pathMap  = new PathMap(_gameLoop, BotConfiguration.DeepPathFind);
+            _pathFind = new PathFind(_gameLoop, _pathMap, BotConfiguration.MaxLenghtPath);
+            _goldFounder = new GoldFounder(_gameLoop, _pathFind, _pathMap);
+            _botActions = new QueueBotActions();
         }
 
         /// <summary>
@@ -51,9 +55,6 @@ namespace Loderunner
         /// </summary>
         protected override string DoMove(GameBoard gameBoard)
         {
-            Console.Clear();
-            //gameBoard.PrintBoard();
-
             return LoderunnerActionToString(CalculateAction(gameBoard));
         }
 
@@ -62,38 +63,30 @@ namespace Loderunner
         /// </summary>
         private LoderunnerAction CalculateAction(GameBoard gameBoard)
         {
+            _gameLoop.InvokeTick(gameBoard);
+            
             //Проверка времени выполнения
             var stopwatch = new Stopwatch();
             stopwatch.Start();
+
+            #region ПОРЯДОК ВЫПОЛНЕНИЯ
             
-            //Основные методы
-            _pathMap.Initialization(gameBoard, gameBoard.GetMyPosition());
             _pathMap.GenerateMap();
             
-            _pathFind.Initialization(gameBoard);
-            _targetSearcher.Initialization(gameBoard);
-            LoderunnerAction action;
-            if (_pathMap.Gold.Count > 0)
-            {
-                action = _targetSearcher.GetBestPathAction();
-            }
-            else
-            {
-                action = LoderunnerAction.DoNothing;
-            }
-            
-            // var point = gameBoard.GetMyPosition();
-            // var path = _pathFind.GetGraphToPoint(point.X+1, point.Y+2);
-            // action = _pathFind.ParseGraphToAction(path);
-            
 
+            
+            
+            #endregion
+
+            
+            
             //Замеряем время выполнения
             stopwatch.Stop();
             Console.WriteLine($"Затрачено времени: {stopwatch.ElapsedMilliseconds}");
+            LoderunnerAction action = _botActions.Next();
             Console.WriteLine(action.ToString());
             return action;
         }
-
 
         /// <summary>
         /// Starts loderunner's client shutdown.

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using Loderunner.Api;
+using Loderunner.BotSystems.Base;
+using Loderunner.BotSystems.Core.Interfaces;
+using Loderunner.BotSystems.Utilities;
 
 
 namespace Loderunner.BotSystems.PathFinding
@@ -8,7 +11,7 @@ namespace Loderunner.BotSystems.PathFinding
     /// Поиск пути из одной точки в другую на
     /// графах.
     /// </summary>
-    public class PathFind
+    public class PathFind : ITick
     {
         private GameBoard _board;
         private PathMap _map;
@@ -19,6 +22,7 @@ namespace Loderunner.BotSystems.PathFinding
         private PathNode.DirectionNode _lastDirection;
 
         private GraphAlgorithms _algorithms;
+        private GameLoop _gameLoop;
 
         private Dictionary<PathNode.DirectionNode, LoderunnerAction> DirectionToAction = new Dictionary<PathNode.DirectionNode, LoderunnerAction>()
         {
@@ -30,25 +34,28 @@ namespace Loderunner.BotSystems.PathFinding
             {PathNode.DirectionNode.DiagonalRight, LoderunnerAction.GoRight}
         };
 
-        public PathFind(PathMap map, int maxLenghtPath)
+        public PathFind(GameLoop gameLoop, PathMap map, int maxLenghtPath)
         {
+            _gameLoop = gameLoop;
             _map = map;
             _maxLenghtPath = maxLenghtPath;
             _algorithms = new GraphAlgorithms(_maxLenghtPath);
+
+            _gameLoop.OnTick += Tick;
         }
 
-        public void Initialization(GameBoard board)
+        ~PathFind()
         {
-            _board = board;
+            _gameLoop.OnTick -= Tick;
         }
-        
+
         public PathGraph GetGraphToPoint(int x, int y)
         {
             _target = _map.GetNode(x, y);
 
             if (_target != null)
             {
-                GetGraphToPoint(ref _target);
+                return GetGraphToPoint(ref _target);
             }
             return null;
         }
@@ -59,54 +66,13 @@ namespace Loderunner.BotSystems.PathFinding
             _root = _map.GetNode(rootPoint.X, rootPoint.Y);
             _target = node;
 
-            var graph = _algorithms.GetPathWithoutCost(ref _root, ref _target);
+            var graph = _algorithms.GetPathWithCost(ref _root, ref _target);
             return graph;
         }
-        
-        public LoderunnerAction ParseGraphToAction(PathGraph graph)
+
+        public void Tick(GameBoard board)
         {
-            if (graph != null)
-            {
-                graph.Nodes.Reverse();
-                
-                var current = graph.Nodes[0];
-                var next = graph.Nodes[1];
-
-                if (current.Left == next)
-                {
-                    return DirectionToAction[PathNode.DirectionNode.Left];
-                }
-
-                if (current.Right == next)
-                {
-                    return DirectionToAction[PathNode.DirectionNode.Right];
-                }
-
-                if (current.Up == next)
-                {
-                    return DirectionToAction[PathNode.DirectionNode.Up];
-                }
-
-                if (current.Down == next)
-                {
-                    return DirectionToAction[PathNode.DirectionNode.Down];
-                }
-
-                if (current.DiagonalRight == next)
-                {
-                    return DirectionToAction[PathNode.DirectionNode.DiagonalRight];
-                }
-
-                if (current.DiagonalLeft == next)
-                {
-                    return DirectionToAction[PathNode.DirectionNode.DiagonalLeft];
-                }
-
-            }
-            return LoderunnerAction.DoNothing;
+            _board = board;
         }
-        
-        
-
     }
 }

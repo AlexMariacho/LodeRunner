@@ -58,27 +58,25 @@ namespace Loderunner.BotSystems.PathFinding
 
         public PathGraph GetPathWithCost(ref PathNode root, ref PathNode target)
         {
-            _checkedNodes.Clear();
-            _queue.Clear();
-            
-            
-
-
-            return null;
+            TransformToWeightedGraph(ref root);
+            return GetPathWithoutCost(ref root, ref target);
         }
 
-        private PathGraph GetAllGraph(ref PathNode root)
+        private void TransformToWeightedGraph(ref PathNode root)
         {
             _checkedNodes.Clear();
             _queue.Clear();
-            var result = new PathGraph();
-            
+
             _checkedNodes.Add(root);
             _queue.Enqueue(root);
             while (_queue.Count != 0)
             {
                 var node = _queue.Dequeue();
-                
+                if (node.Cost > 1)
+                {
+                    ExpandNode(ref node, node.Cost);
+                }
+
                 foreach (var neighbor in node.Neighbors)
                 {
                     if (!_checkedNodes.Contains(neighbor))
@@ -89,22 +87,43 @@ namespace Loderunner.BotSystems.PathFinding
                     }
                 }
             }
-
-            foreach (var node in _checkedNodes)
-            {
-                if (!result.Nodes.Contains(node))
-                {
-                    result.Nodes.Add(node);
-                }
-            }
-            return result;
         }
 
-        // private PathGraph TransformToWeightedGraph(ref PathGraph graph)
-        // {
-        //     
-        // }
+        private void ExpandNode(ref PathNode node, int count)
+        {
+            if (count < 2)
+            {
+                return;
+            }
+            node.SetCost(1);
+            var name = node.Name;
+            var pathNodes = new List<PathNode>();
+            for (int i = 0; i < count - 1; i++)
+            {
+                var expandNode = new PathNode();
+                expandNode.SetCost(1);
+                expandNode.SetName(name);
+                expandNode.SetExtendedFlag(true);
+                pathNodes.Add(expandNode);
 
+                if (pathNodes.Count > 1)
+                {
+                    pathNodes[i-1].Link(expandNode, PathNode.DirectionNode.Down);
+                }
+            }
+
+            var endPath = pathNodes[pathNodes.Count - 1];
+            endPath.SetExtendedFlag(false);
+            foreach (var neighbor in node.Neighbors)
+            {
+                var direction = node.GetDirection(neighbor);
+                endPath.Link(neighbor, direction);
+            }
+
+            node.RemoveAllLinks();
+            node.Link(pathNodes[0], PathNode.DirectionNode.Down);
+        }
+        
 
         private PathGraph GetPathFromTarget(ref PathNode target)
         {

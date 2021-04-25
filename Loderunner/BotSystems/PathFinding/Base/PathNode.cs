@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Loderunner.BotSystems.PathFinding
 {
@@ -18,32 +19,32 @@ namespace Loderunner.BotSystems.PathFinding
         /// <summary>
         /// Соседний сверху граф
         /// </summary>
-        public PathNode Up => _up;
+        public PathNode Up => DirectionFromNode[DirectionNode.Up];
 
         /// <summary>
         /// Соседний справа граф
         /// </summary>
-        public PathNode Right => _right;
+        public PathNode Right => DirectionFromNode[DirectionNode.Right];
 
         /// <summary>
         /// Соседний снизу граф
         /// </summary>
-        public PathNode Down => _down;
+        public PathNode Down => DirectionFromNode[DirectionNode.Down];
 
         /// <summary>
         /// Соседний слева граф
         /// </summary>
-        public PathNode Left => _left;
+        public PathNode Left => DirectionFromNode[DirectionNode.Left];
 
         /// <summary>
         /// Соседний граф по диагонали слева
         /// </summary>
-        public PathNode DiagonalLeft => _diagonalLeft;
+        public PathNode DiagonalLeft => DirectionFromNode[DirectionNode.DiagonalLeft];
 
         /// <summary>
         /// Соседний граф по диагонали справа
         /// </summary>
-        public PathNode DiagonalRight => _diagonalRight;
+        public PathNode DiagonalRight => DirectionFromNode[DirectionNode.DiagonalRight];
         
         /// <summary>
         /// Список всех соседей
@@ -60,20 +61,23 @@ namespace Loderunner.BotSystems.PathFinding
         /// </summary>
         public string Name => _name;
         
+        /// <summary>
+        /// Флаг, означающий, что данны нод
+        /// создан в процессе приведения графа к
+        /// взвешенному типу
+        /// </summary>
+        public bool IsExtended => _isExtended;
+        
         private int _score;
         private int _cost;
-        private PathNode _up;
-        private PathNode _right;
-        private PathNode _down;
-        private PathNode _left;
-        private PathNode _diagonalLeft;
-        private PathNode _diagonalRight;
-
+        private bool _isExtended;
+        
         private PathNode _source;
         private string _name;
 
         private List<PathNode> _neighbors = new List<PathNode>();
-        
+        private Dictionary<DirectionNode, PathNode> DirectionFromNode = new Dictionary<DirectionNode, PathNode>();
+
         public enum DirectionNode
         {
             Up,
@@ -81,30 +85,13 @@ namespace Loderunner.BotSystems.PathFinding
             Left,
             Right,
             DiagonalLeft,
-            DiagonalRight
+            DiagonalRight,
+            None
         }
 
         public PathNode()
         {
-        }
-
-        public PathNode(int score, int cost, PathNode up, PathNode right, PathNode down, PathNode left, PathNode diagonalLeft, PathNode diagonalRight)
-        {
-            _score = score;
-            _cost = cost;
-            _up = up;
-            _right = right;
-            _down = down;
-            _left = left;
-            _diagonalLeft = diagonalLeft;
-            _diagonalRight = diagonalRight;
-            
-            TryAddNeighbors(_up);
-            TryAddNeighbors(_right);
-            TryAddNeighbors(_down);
-            TryAddNeighbors(_left);
-            TryAddNeighbors(_diagonalLeft);
-            TryAddNeighbors(_diagonalRight);
+            Initialization();
         }
 
         /// <summary>
@@ -150,47 +137,73 @@ namespace Loderunner.BotSystems.PathFinding
         /// <param name="directionNode">Сторона</param>
         public void Link(PathNode node, DirectionNode directionNode)
         {
-            switch (directionNode)
+            if (DirectionFromNode.ContainsKey(directionNode))
             {
-                case DirectionNode.Up:
-                    if (TryAddNeighbors(node))
-                    {
-                        _up = node;
-                    }
-                    break;
-                case DirectionNode.Down:
-                    if (TryAddNeighbors(node))
-                    {
-                        _down = node;
-                    }
-                    break;
-                case DirectionNode.Left:
-                    if (TryAddNeighbors(node))
-                    {
-                        _left = node;
-                    }
-                    break;
-                case DirectionNode.Right:
-                    if (TryAddNeighbors(node))
-                    {
-                        _right = node;
-                    }
-                    break;
-                case DirectionNode.DiagonalLeft:
-                    if (TryAddNeighbors(node))
-                    {
-                        _diagonalLeft = node;
-                    }
-                    break;
-                case DirectionNode.DiagonalRight:
-                    if (TryAddNeighbors(node))
-                    {
-                        _diagonalRight = node;
-                    }
-                    break;
-                default:
-                    return;
+                if (TryAddNeighbors(node))
+                {
+                    DirectionFromNode[directionNode] = node;
+                }
             }
+        }
+
+        /// <summary>
+        /// Возвращает направление от текущего нода к
+        /// целевому
+        /// </summary>
+        /// <param name="node">Целевой нод</param>
+        /// <returns></returns>
+        public DirectionNode GetDirection(PathNode node)
+        {
+            var result = DirectionNode.None;
+            foreach (var direction in DirectionFromNode.Keys)
+            {
+                if (DirectionFromNode[direction] == node)
+                {
+                    result = direction;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Удалить связь с целевым нодом
+        /// </summary>
+        /// <param name="node">Целевой нод</param>
+        public void RemoveLink(PathNode node)
+        {
+            if (_neighbors.Contains(node))
+            {
+                _neighbors.Remove(node);
+                foreach (var direction in DirectionFromNode.Keys)
+                {
+                    if (DirectionFromNode[direction] == node)
+                    {
+                        DirectionFromNode[direction] = null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Удалить все связи нода
+        /// </summary>
+        public void RemoveAllLinks()
+        {
+            foreach (var direction in DirectionFromNode.Keys.ToList())
+            {
+                DirectionFromNode[direction] = null;
+            }
+            _neighbors.Clear();
+        }
+
+        /// <summary>
+        /// Установить флаг, показывающий, что нод создан
+        /// для взвешивания графа.
+        /// </summary>
+        /// <param name="flag">Флаг</param>
+        public void SetExtendedFlag(bool flag)
+        {
+            _isExtended = flag;
         }
 
         private bool TryAddNeighbors(PathNode node)
@@ -203,6 +216,16 @@ namespace Loderunner.BotSystems.PathFinding
             }
 
             return false;
+        }
+
+        private void Initialization()
+        {
+            DirectionFromNode.Add(DirectionNode.Down, null);
+            DirectionFromNode.Add(DirectionNode.Up, null);
+            DirectionFromNode.Add(DirectionNode.Left, null);
+            DirectionFromNode.Add(DirectionNode.Right, null);
+            DirectionFromNode.Add(DirectionNode.DiagonalRight, null);
+            DirectionFromNode.Add(DirectionNode.DiagonalLeft, null);
         }
 
     }
