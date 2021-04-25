@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
@@ -10,9 +11,9 @@ namespace Loderunner.BotSystems.Core
     /// <summary>
     /// Класс отвечает за поиск золота
     /// </summary>
-    public class GoldFounder : ITick, IActionProvider
+    public class GoldRadar : ITick, IActionProvider
     {
-        public int Priority { get => 1; }
+        public int Priority { get => 2; }
         
         private GameBoard _board;
         
@@ -22,9 +23,9 @@ namespace Loderunner.BotSystems.Core
         private Dictionary<PathNode, PathGraph> GoldPath = new Dictionary<PathNode, PathGraph>();
         private GameLoop _gameLoop;
         
-        private Queue<LoderunnerAction> _wayToNearGold = new Queue<LoderunnerAction>();
+        private Stack<LoderunnerAction> _wayToNearGold = new Stack<LoderunnerAction>();
 
-        public GoldFounder(GameLoop gameLoop, PathFind pathFind, PathMap pathMap)
+        public GoldRadar(GameLoop gameLoop, PathFind pathFind, PathMap pathMap)
         {
             _gameLoop = gameLoop;
             _pathFind = pathFind;
@@ -33,7 +34,7 @@ namespace Loderunner.BotSystems.Core
             _gameLoop.OnTick += Tick;
         }
 
-        ~GoldFounder()
+        ~GoldRadar()
         {
             _gameLoop.OnTick -= Tick;
         }
@@ -80,16 +81,16 @@ namespace Loderunner.BotSystems.Core
                 return;
             }
             var graph = GoldPath[_pathMap.Gold[index]];
-            _wayToNearGold = GraphToAction.ParseToQueue(graph);
+            _wayToNearGold = GraphToAction.ParseToStack(graph);
         }
         
         public LoderunnerAction NextAction()
         {
+            Console.WriteLine("Visions: GoldRadar");
             if (_wayToNearGold.Count > 0)
             {
-                return _wayToNearGold.Dequeue();
+                return _wayToNearGold.Pop();
             }
-
             return LoderunnerAction.DoNothing;
         }
         

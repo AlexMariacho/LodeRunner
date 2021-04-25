@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
@@ -10,7 +11,7 @@ namespace Loderunner.BotSystems.Core
 {
     public class EnviromentsRadar : ITick, IActionProvider
     {
-        public int Priority { get => 2; }
+        public int Priority { get => 3; }
 
         private PathFind _pathFind;
         private GameBoard _board;
@@ -72,6 +73,7 @@ namespace Loderunner.BotSystems.Core
         
         public LoderunnerAction NextAction()
         {
+            Console.WriteLine("Visions: EnviromentsRadar");
             if (_pathToDestination.Count > 0)
             {
                 return _pathToDestination.Pop();

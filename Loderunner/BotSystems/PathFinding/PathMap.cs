@@ -63,6 +63,12 @@ namespace Loderunner.BotSystems.PathFinding
             return graph;
         }
 
+        /// <summary>
+        /// Получить ноду по координате игрового поля
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
         public PathNode GetNode(int x, int y)
         {
             if (PointToNode.ContainsKey(BoardPointStringPosition.Get(x, y)))
@@ -210,14 +216,19 @@ namespace Loderunner.BotSystems.PathFinding
         {
             if (!_board.HasElementAt(x, y + 1, BoardElement.None))
             {
-                LinkNodeDirectionNotWall(ref node, x-1, y, PathNode.DirectionNode.Left);
-                LinkNodeDirectionNotWall(ref node, x+1, y, PathNode.DirectionNode.Right);
-
-                if (!_board.HasNotWalkableAt(x - 1, y))
+                if (_board.HasWallAt(x, y + 1))
+                {
+                    LinkNodeDirectionNotWall(ref node, x-1, y, PathNode.DirectionNode.Left);
+                    LinkNodeDirectionNotWall(ref node, x+1, y, PathNode.DirectionNode.Right);
+                }
+                
+                if (!_board.HasNotWalkableAt(x - 1, y) &&
+                    !_board.HasLadderAt(x -1, y))
                 {
                     LinkNodeDiagonalDirectionWall(ref node, x-1, y+1, PathNode.DirectionNode.DiagonalLeft);
                 }
-                if (!_board.HasNotWalkableAt(x + 1, y))
+                if (!_board.HasNotWalkableAt(x + 1, y) &&
+                    !_board.HasLadderAt(x + 1, y))
                 {
                     LinkNodeDiagonalDirectionWall(ref node, x+1, y+1, PathNode.DirectionNode.DiagonalRight);
                 }

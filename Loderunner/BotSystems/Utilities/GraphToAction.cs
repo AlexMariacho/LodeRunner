@@ -29,7 +29,7 @@ namespace Loderunner.BotSystems.Utilities
                         continue;
                     }
 
-                    var direction = current.GetDirection(next);
+                    var direction = next.GetDirection(current);
                     switch (direction)
                     {
                         case PathNode.DirectionNode.Up:

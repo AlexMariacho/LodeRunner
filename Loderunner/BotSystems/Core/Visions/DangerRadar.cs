@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
@@ -47,6 +48,7 @@ namespace Loderunner.BotSystems.Core
 
         public LoderunnerAction NextAction()
         {
+            Console.WriteLine("Visions: EnviromentsRadar");
             ScanAround();
 
             
