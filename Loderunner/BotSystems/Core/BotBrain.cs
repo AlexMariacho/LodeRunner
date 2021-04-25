@@ -2,6 +2,7 @@
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
+using Loderunner.BotSystems.Core.Visions;
 using Loderunner.BotSystems.PathFinding;
 using Loderunner.Config;
 

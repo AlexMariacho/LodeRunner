@@ -4,10 +4,9 @@ using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
 using Loderunner.BotSystems.PathFinding;
-using Loderunner.BotSystems.Utilities;
 using Loderunner.Extensions;
 
-namespace Loderunner.BotSystems.Core
+namespace Loderunner.BotSystems.Core.Visions
 {
     public class DangerRadar : ITick, IActionProvider
     {
@@ -48,10 +47,8 @@ namespace Loderunner.BotSystems.Core
 
         public LoderunnerAction NextAction()
         {
-            Console.WriteLine("Visions: EnviromentsRadar");
+            Console.WriteLine("Visions: DangerRadar");
             ScanAround();
-
-            
             
             
             return LoderunnerAction.DoNothing;

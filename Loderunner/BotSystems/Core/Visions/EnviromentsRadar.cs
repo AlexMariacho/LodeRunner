@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
 using Loderunner.BotSystems.PathFinding;
-using Loderunner.BotSystems.Utilities;
 
-namespace Loderunner.BotSystems.Core
+namespace Loderunner.BotSystems.Core.Visions
 {
     public class EnviromentsRadar : ITick, IActionProvider
     {
@@ -37,47 +34,11 @@ namespace Loderunner.BotSystems.Core
         public void Tick(GameBoard board)
         {
             _board = board;
-
-            if (!_isSetDestination)
-            {
-                _isSetDestination = true;
-                TestDistanation();
-            }
         }
 
-
-        #region Expiriments block
-
-        private BoardPoint _finalPos;
-        private bool _isSetDestination = false;
-        private Stack<LoderunnerAction> _pathToDestination = new Stack<LoderunnerAction>();
-        
-        private void TestDistanation()
-        {
-            var point = _board.GetMyPosition();
-            int offsetX = 0;
-            int offsetY = 2;
-            
-            _finalPos = new BoardPoint(point.X + offsetX, point.Y + offsetY);
-            
-            var path = _pathFind.GetGraphToPoint(_finalPos.X, _finalPos.Y);
-            if (path != null)
-            {
-                _pathToDestination = GraphToAction.ParseToStack(path);
-            }
-        }
-        
-
-        #endregion
-        
-        
         public LoderunnerAction NextAction()
         {
             Console.WriteLine("Visions: EnviromentsRadar");
-            if (_pathToDestination.Count > 0)
-            {
-                return _pathToDestination.Pop();
-            }
             return LoderunnerAction.DoNothing;
         }
 

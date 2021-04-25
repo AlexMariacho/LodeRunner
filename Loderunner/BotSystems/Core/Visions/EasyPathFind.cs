@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
 using Loderunner.BotSystems.PathFinding;
 using Loderunner.BotSystems.Utilities;
 
-namespace Loderunner.BotSystems.Core
+namespace Loderunner.BotSystems.Core.Visions
 {
     /// <summary>
     /// Самый простой алгоритм поиска пути, нужен чтобы
