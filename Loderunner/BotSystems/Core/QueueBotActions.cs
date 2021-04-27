@@ -8,7 +8,7 @@ namespace Loderunner.BotSystems.Core
     /// Класс в котором сосредоточена логика очереди
     /// джля бота
     /// </summary>
-    [Obsolete("Скорее всего будет заменена в логике BotBrain")]
+    [Obsolete("Скорее всего будет удален, так как дургой подход есть в BotBrain")]
     public class QueueBotActions
     {
         private Queue<LoderunnerAction> _queueActions = new Queue<LoderunnerAction>();

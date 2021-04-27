@@ -110,7 +110,7 @@ namespace Loderunner.BotSystems.PathFinding
             {
                 return 0;
             }
-
+            //todo: протестировать стоимость brick 3 или 4?
             var element = _board.GetAt(x, y);
             switch (element)
             {
@@ -142,6 +142,19 @@ namespace Loderunner.BotSystems.PathFinding
                 default:
                     return 0;
             }
+        }
+
+        private void CalculateMultiplicatorGoldScore()
+        {
+            //todo: Поработать с мультипликатором скора
+            /// если ситуация, где золото расположено
+            /// друг над другом
+            /// $
+            /// $
+            /// $
+            ///
+            /// скор нижнего должен быть равен сумме всех
+            /// верхних
         }
 
         private void TryAddGoldToList(ref PathNode node, int x, int y)

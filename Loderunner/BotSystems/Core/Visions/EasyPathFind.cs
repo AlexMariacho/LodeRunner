@@ -15,6 +15,7 @@ namespace Loderunner.BotSystems.Core.Visions
     public class EasyPathFind : ITick, IActionProvider
     {
         public int Priority { get => 1; }
+        public string NameLayer { get => "EasyPathFind"; }
         
         private PathFind _pathFind;
         private GameBoard _board;
@@ -71,7 +72,6 @@ namespace Loderunner.BotSystems.Core.Visions
 
         public LoderunnerAction NextAction()
         {
-            Console.WriteLine("Visions: EasyPathFind");
             if (_ticksCounter == _lastTickAction - 1)
             {
                 return _pathToDestination.Pop();

@@ -9,6 +9,7 @@ namespace Loderunner.BotSystems.Core.Visions
     public class EnviromentsRadar : ITick, IActionProvider
     {
         public int Priority { get => 3; }
+        public string NameLayer { get => "EnviromentsRadar"; }
 
         private PathFind _pathFind;
         private GameBoard _board;
@@ -38,7 +39,6 @@ namespace Loderunner.BotSystems.Core.Visions
 
         public LoderunnerAction NextAction()
         {
-            Console.WriteLine("Visions: EnviromentsRadar");
             return LoderunnerAction.DoNothing;
         }
 

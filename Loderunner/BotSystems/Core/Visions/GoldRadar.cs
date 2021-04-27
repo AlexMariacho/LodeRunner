@@ -14,16 +14,16 @@ namespace Loderunner.BotSystems.Core
     public class GoldRadar : ITick, IActionProvider
     {
         public int Priority { get => 2; }
+        public string NameLayer { get => "GoldRadar"; }
         
+        private GameLoop _gameLoop;
         private GameBoard _board;
         
         private PathFind _pathFind;
         private PathMap _pathMap;
         
-        private Dictionary<PathNode, PathGraph> GoldPath = new Dictionary<PathNode, PathGraph>();
-        private GameLoop _gameLoop;
-        
         private Stack<LoderunnerAction> _wayToNearGold = new Stack<LoderunnerAction>();
+        private List<PathGraph> goldPaths = new List<PathGraph>();
 
         public GoldRadar(GameLoop gameLoop, PathFind pathFind, PathMap pathMap)
         {
@@ -39,54 +39,38 @@ namespace Loderunner.BotSystems.Core
             _gameLoop.OnTick -= Tick;
         }
 
-        //todo: оптимизировать до одного действия
+        //todo: добавить поиск наиболее выгодного варианта
         /// <summary>
         /// Получить список действий до ближайшего золота
         /// </summary>
         /// <returns></returns>
         private void FindNearGold()
         {
-            GoldPath.Clear();
-            
+            goldPaths.Clear();
+
             foreach (var nodeGold in _pathMap.Gold)
             {
-                if (!GoldPath.ContainsKey(nodeGold))
+                var node = nodeGold;
+                var path = _pathFind.GetGraphToPoint(ref node);
+                if (path != null)
                 {
-                    var node = nodeGold;
-                    var path = _pathFind.GetGraphToPoint(ref node);
-                    if (path != null)
-                    {
-                        GoldPath.Add(nodeGold, path);
-                    }
+                    goldPaths.Add(path);
                 }
             }
-            
-            var minCost = 99;
-            var index = -1;
-            for (int i = 0; i < GoldPath.Count; i++)
-            {
-                if (GoldPath.ContainsKey(_pathMap.Gold[i]))
-                {
-                    if (GoldPath[_pathMap.Gold[i]].Nodes.Count < minCost)
-                    {
-                        minCost = GoldPath[_pathMap.Gold[i]].Nodes.Count;
-                        index = i;
-                    }
-                }
-            }
-            
-            if (index == -1)
+
+            if (goldPaths.Count == 0)
             {
                 _wayToNearGold.Clear();
                 return;
             }
-            var graph = GoldPath[_pathMap.Gold[index]];
-            _wayToNearGold = GraphToAction.ParseToStack(graph);
+
+            goldPaths.Sort((item1, item2) => item1.Lenght.CompareTo(item2.Lenght));
+            _wayToNearGold = GraphToAction.ParseToStack(goldPaths[0]);
         }
         
         public LoderunnerAction NextAction()
         {
-            Console.WriteLine("Visions: GoldRadar");
+            FindNearGold();
             if (_wayToNearGold.Count > 0)
             {
                 return _wayToNearGold.Pop();
@@ -97,7 +81,6 @@ namespace Loderunner.BotSystems.Core
         public void Tick(GameBoard board)
         {
             _board = board;
-            FindNearGold();
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Loderunner.BotSystems.Core.Visions
     public class DangerRadar : ITick, IActionProvider
     {
         public int Priority { get => 5; }
+        public string NameLayer { get => "DangerRadar"; }
 
         private PathFind _pathFind;
         private GameBoard _board;
@@ -47,9 +48,8 @@ namespace Loderunner.BotSystems.Core.Visions
 
         public LoderunnerAction NextAction()
         {
-            Console.WriteLine("Visions: DangerRadar");
             ScanAround();
-            
+            //todo: описать действия при обнаружении врага
             
             return LoderunnerAction.DoNothing;
         }

@@ -6,5 +6,6 @@ namespace Loderunner.BotSystems.Core.Interfaces
     {
         LoderunnerAction NextAction();
         int Priority { get; }
+        string NameLayer { get; }
     }
 }

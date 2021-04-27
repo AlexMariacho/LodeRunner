@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Loderunner.Api;
 using Loderunner.BotSystems.Base;
 using Loderunner.BotSystems.Core.Interfaces;
@@ -49,22 +50,21 @@ namespace Loderunner.BotSystems.Core
         public LoderunnerAction GetNextAction()
         {
             LoderunnerAction action;
-            foreach (var actionProfider in _actionProfiders)
+            for (int i = 0; i < _actionProfiders.Count; i++)
             {
-                action = actionProfider.NextAction();
+                action = _actionProfiders[i].NextAction();
                 if (action != LoderunnerAction.DoNothing)
                 {
+                    Console.WriteLine($"Selected layer: {_actionProfiders[i].NameLayer}");
                     return action;
                 }
             }
             return LoderunnerAction.DoNothing;
         }
-
-
-
+        
         public LoderunnerAction NextAction()
         {
-            return _easyPathFind.NextAction();
+            return GetNextAction();
         }
     }
 }
